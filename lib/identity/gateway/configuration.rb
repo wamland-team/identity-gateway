@@ -1,14 +1,15 @@
 module Identity
   module Gateway
     class Configuration
-      attr_accessor :provider_url, :model, :segment_path
+      attr_accessor :model, :provider_url, :identity_path, :version_header
 
       # Initialize a configuration.
       #
       # ==== Returns
       # * <tt>Identity::Gateway::Configuration</tt> - New instance.
       def initialize
-        @segment_path = '/me'
+        @model = 'User'
+        @identity_path = '/me'
       end
     end
   end
