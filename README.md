@@ -1,5 +1,9 @@
 # Identity::Gateway
 
+[![Gem Version][GV img]][Gem Version]
+[Gem Version]: https://rubygems.org/gems/identity-gateway
+[GV img]: https://img.shields.io/gem/v/identity-gateway.svg
+
 Identity's gateway provider for Ruby and Rails applications. Act as a man in the middle between backend services and Identity.
 
 ## Installation
@@ -7,7 +11,7 @@ Identity's gateway provider for Ruby and Rails applications. Act as a man in the
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'identity-gateway', '~> 1.0'
+gem 'identity-gateway'
 ```
 
 Use Bundler to install the dependency:
