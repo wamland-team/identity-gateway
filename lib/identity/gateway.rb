@@ -32,3 +32,5 @@ module Identity
     end
   end
 end
+
+require 'identity/gateway/provider'
