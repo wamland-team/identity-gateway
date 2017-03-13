@@ -5,7 +5,6 @@ module Identity
     class Unauthorized < StandardError; end
     class Provider
       include HTTParty
-      base_uri Identity::Gateway.configuration.provider_url
 
       # Class initializer.
       #
@@ -49,7 +48,11 @@ module Identity
       # ==== Returns
       # * <tt>ActiveRecord|Error</tt> - User object, error otherwise.
       def authorize_from_provider
-        @response = self.class.get(@settings.identity_path, headers: api_headers)
+        @response = self.class.get(
+          @settings.provider_url + @settings.identity_path,
+          headers: api_headers
+        )
+
         raise Unauthorized if @response.code == 401
         @subject = @model.from_oauth_provider(@response.parsed_response)
       end
