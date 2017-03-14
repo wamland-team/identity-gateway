@@ -1,0 +1,11 @@
+machine:
+  ruby:
+    version: 2.2.4
+
+## Customize dependencies
+dependencies:
+  pre:
+    - sudo apt-get update
+  override:
+    - bundle install: # note ':' here
+        timeout: 180 # fail if command has no output for 3 minutes

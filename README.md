@@ -1,8 +1,7 @@
 # Identity::Gateway
 
-[![Gem Version][GV img]][Gem Version]
-[Gem Version]: https://rubygems.org/gems/identity-gateway
-[GV img]: https://img.shields.io/gem/v/identity-gateway.svg
+[![Gem Version](https://img.shields.io/gem/v/identity-gateway.svg)](https://rubygems.org/gems/identity-gateway)
+[![CircleCI](https://circleci.com/gh/wamland-team/identity-gateway.svg?style=shield&circle-token=b03fdcc75674d173f58a296cb1a3b2162b6828dc)](https://circleci.com/gh/wamland-team/identity-gateway)
 
 Identity's gateway provider for Ruby and Rails applications. Act as a man in the middle between backend services and Identity.
 
