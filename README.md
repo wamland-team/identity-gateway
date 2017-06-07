@@ -87,10 +87,10 @@ class ApplicationController < ActionController::Base
 end
 ```
 
-Alternatively, you can globally handle Identity::Gateway::Unauthorized's by having rails handle them as a 403 error and serving a 403 error page. Add the following to application.rb:
+Alternatively, you can globally handle Identity::Gateway::Unauthorized's by having rails handle them as a 401 error and serving a 401 error page. Add the following to application.rb:
 
 ```ruby
-config.action_dispatch.rescue_responses['Identity::Gateway::Unauthorized'] = :forbidden
+config.action_dispatch.rescue_responses['Identity::Gateway::Unauthorized'] = :unauthorized
 ```
 
 ## Configuration
