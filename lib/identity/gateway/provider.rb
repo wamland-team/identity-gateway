@@ -41,6 +41,18 @@ module Identity
         @subject
       end
 
+      # Revoke access token.
+      #
+      # ==== Returns
+      # * <tt>HTTParty::Response</tt>.
+      def revoke_access!
+        self.class.post(
+          "#{@settings.provider_url}/oauth/revoke",
+          body: { token: request_token }.to_json,
+          headers: api_headers
+        )
+      end
+
       protected
 
       # Try to authorize token against provider.
