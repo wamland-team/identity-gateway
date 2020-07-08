@@ -65,7 +65,7 @@ module Identity
           headers: api_headers
         )
 
-        raise Unauthorized if @response.code == 401
+        raise Unauthorized if @response.code == 401 || @response.parsed_response.nil?
         @subject = @model.from_oauth_provider(@response.parsed_response)
       end
 

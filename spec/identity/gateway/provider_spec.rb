@@ -108,15 +108,26 @@ module Identity
 
       describe '.authorize_from_provider' do
         context 'response is unauthorized' do
-          let(:response) { MockResponse.new(401) }
-
           before(:each) do
             allow(Provider).to receive(:get).and_return(response)
           end
 
-          it 'raises an error' do
-            identity = Provider.new(request)
-            expect { identity.send(:authorize_from_provider) }.to raise_error(Unauthorized)
+          context 'when receive a 401 code' do
+            let(:response) { MockResponse.new(401) }
+
+            it 'raises an error' do
+              identity = Provider.new(request)
+              expect { identity.send(:authorize_from_provider) }.to raise_error(Unauthorized)
+            end
+          end
+
+          context 'when the parsed_response is nil' do
+            let(:response) { MockResponse.new(200, nil) }
+
+            it 'raises an error' do
+              identity = Provider.new(request)
+              expect { identity.send(:authorize_from_provider) }.to raise_error(Unauthorized)
+            end
           end
         end
 
