@@ -65,7 +65,7 @@ module Identity
           headers: api_headers
         )
 
-        raise Unauthorized if @response.code == 401 || @response.parsed_response.nil?
+        raise Unauthorized if invalid_response?(@response)
         @subject = @model.from_oauth_provider(@response.parsed_response)
       end
 
@@ -87,6 +87,17 @@ module Identity
           'Accept'        => @settings.version_header || '',
           'Authorization' => @request.headers['Authorization'] || ''
         }
+      end
+
+      # Invalid Response.
+      #
+      # ==== Returns
+      # * <tt>Boolean</tt> - True if is an invalid response.
+      def invalid_response?(response)
+        parsed_response = response.parsed_response
+        return true if response.code == 401 || parsed_response.nil? || parsed_response['id'].nil?
+
+        false
       end
     end
   end

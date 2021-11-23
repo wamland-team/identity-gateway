@@ -129,6 +129,15 @@ module Identity
               expect { identity.send(:authorize_from_provider) }.to raise_error(Unauthorized)
             end
           end
+
+          context 'when the Id value is not found' do
+            let(:response) { MockResponse.new(200, 'id' => nil, 'token' => 'a1d8745b59') }
+
+            it 'raises an error' do
+              identity = Provider.new(request)
+              expect { identity.send(:authorize_from_provider) }.to raise_error(Unauthorized)
+            end
+          end
         end
 
         context 'has response' do
