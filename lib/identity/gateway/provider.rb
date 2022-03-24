@@ -74,7 +74,7 @@ module Identity
       # ==== Returns
       # * <tt>String</tt> - token.
       def request_token
-        (@request.headers['Authorization'] || '').gsub('Bearer ', '')
+        (@request.headers['Authorization'] || @request.params['access_token'] || '').gsub('Bearer ', '')
       end
 
       # Required headers.
