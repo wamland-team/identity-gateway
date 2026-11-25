@@ -9,7 +9,7 @@ The provider resolves the resource behind a bearer token by asking Identity's `/
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'identity-gateway', git: 'git@github.com:wamland-team/identity-gateway.git', tag: 'v2.0.0'
+gem 'identity-gateway', git: 'git@github.com:wamland-team/identity-gateway.git', tag: 'v2.0.1'
 ```
 
 Use Bundler to install the dependency:
@@ -69,8 +69,11 @@ end
 
 The model answers two class methods:
 
-* `find_by(id:)`: the resource remembered for a token, or nil;
-* `from_oauth_provider(me_hash)`: the resource created or updated from Identity's `/me` body, responding to `id`.
+* `primary_key`: the column the remembered id is read by;
+* `find_by(primary_key => id)`: the resource remembered for a token, or nil;
+* `from_oauth_provider(me_hash)`: the resource created or updated from Identity's `/me` body, its `id` answering its primary key's value.
+
+An `ActiveRecord` model answers all three, whatever its primary key: a model keyed by `uid` that keeps an `id` column is read by `uid`.
 
 ### Errors
 

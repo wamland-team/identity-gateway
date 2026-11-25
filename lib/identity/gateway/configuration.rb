@@ -9,8 +9,8 @@ module Identity
       # Seconds to wait on Identity before taking it for unavailable.
       DEFAULT_TIMEOUT = 5
 
-      # * <tt>model</tt> - Class, or its name, answering find_by(id:) and
-      #   from_oauth_provider(me_hash).
+      # * <tt>model</tt> - Class, or its name, answering primary_key,
+      #   find_by(primary_key => id) and from_oauth_provider(me_hash).
       # * <tt>cache</tt> - ActiveSupport::Cache store (Rails.cache) holding
       #   the confirmed tokens.
       # * <tt>logger</tt> - Logger told of cache failures, or nil.

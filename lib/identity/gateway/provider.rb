@@ -133,8 +133,7 @@ module Identity
         raise Unauthorized unless request_token
 
         resource_id = self.class.cached_resource_id(request_token)
-        cached = @settings.model_class.find_by(id: resource_id) if resource_id
-        @resource = cached || authorize_from_provider
+        @resource = (cached_resource(resource_id) if resource_id) || authorize_from_provider
       end
 
       # Ask Identity again, whatever the cache holds: for an endpoint that
@@ -174,6 +173,15 @@ module Identity
       end
 
       protected
+
+      # Resource remembered for the token, read by primary key: `id` answers
+      # the primary key's value, while find_by(id:) reads an `id` column a
+      # model keyed otherwise may keep, which would hand the token to the
+      # record whose `id` column holds that value.
+      def cached_resource(resource_id)
+        model = @settings.model_class
+        model.find_by(model.primary_key => resource_id)
+      end
 
       # Ask Identity who owns the token, sync the resource and remember it.
       def authorize_from_provider

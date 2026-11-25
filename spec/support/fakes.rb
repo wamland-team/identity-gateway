@@ -34,7 +34,8 @@ end
 
 FakeUser = Struct.new(:id)
 
-# The model contract: find_by(id:) and from_oauth_provider(hash).
+# The model contract: primary_key, find_by(primary_key => id) and
+# from_oauth_provider(hash).
 class FakeUsers
   attr_reader :synced
 
@@ -43,8 +44,12 @@ class FakeUsers
     @synced = []
   end
 
-  def find_by(id:)
-    @records[id]
+  def primary_key
+    'id'
+  end
+
+  def find_by(conditions)
+    @records[conditions.fetch(primary_key)]
   end
 
   def from_oauth_provider(hash)
