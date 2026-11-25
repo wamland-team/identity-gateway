@@ -2,6 +2,10 @@
 
 require 'bundler/setup'
 require 'identity/gateway'
+require 'logger'
+require 'webmock/rspec'
+
+Dir[File.join(__dir__, 'support', '*.rb')].each { |file| require file }
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
@@ -10,4 +14,6 @@ RSpec.configure do |config|
   config.expect_with :rspec do |c|
     c.syntax = :expect
   end
+
+  config.after { Identity::Gateway.reset }
 end

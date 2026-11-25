@@ -1,31 +1,33 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
-
 module Identity
   module Gateway
     RSpec.describe Configuration do
-      describe '#model' do
-        it 'has a default value' do
-          expect(Configuration.new.model).to eq 'User'
-        end
+      subject(:configuration) { described_class.new }
+
+      it 'has defaults' do
+        expect(configuration).to have_attributes(model: 'User', identity_path: '/me', provider_url: nil, version_header: nil,
+                                                 cache: nil, token_ttl: 120, timeout: 5, logger: nil)
       end
 
-      describe '#provider_url' do
-        it 'has no default value' do
-          expect(Configuration.new.provider_url).to be_nil
-        end
-      end
+      describe '#token_ttl=' do
+        it 'takes seconds as an integer or a base 10 string' do
+          configuration.token_ttl = '300'
+          expect(configuration.token_ttl).to eq 300
 
-      describe '#identity_path' do
-        it 'has a default value' do
-          expect(Configuration.new.identity_path).to eq '/me'
+          configuration.token_ttl = 60
+          expect(configuration.token_ttl).to eq 60
         end
-      end
 
-      describe '#version_header' do
-        it 'has no default value' do
-          expect(Configuration.new.version_header).to be_nil
+        it 'keeps the default for a blank value' do
+          configuration.token_ttl = ''
+
+          expect(configuration.token_ttl).to eq 120
+        end
+
+        it 'refuses anything but a non-negative integer' do
+          expect { configuration.token_ttl = '2m' }.to raise_error(ArgumentError)
+          expect { configuration.token_ttl = -1 }.to raise_error(ArgumentError)
         end
       end
     end

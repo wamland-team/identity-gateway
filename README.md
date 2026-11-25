@@ -2,12 +2,14 @@
 
 Identity's gateway provider for Ruby and Rails applications. Act as a man in the middle between backend services and Identity.
 
+The provider resolves the resource behind a bearer token by asking Identity's `/me`, then trusts the token for `token_ttl` seconds: within that time a request costs one cache read and one `find_by`. The cache holds a SHA256 digest of the token and the resource id only, never the token. A token Identity revokes, or a permission it withdraws, stops working within `token_ttl`.
+
 ## Installation
 
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'identity-gateway'
+gem 'identity-gateway', git: 'git@github.com:wamland-team/identity-gateway.git', tag: 'v2.0.0'
 ```
 
 Use Bundler to install the dependency:
@@ -63,32 +65,40 @@ module Api
 end
 ```
 
-### Rescuing a denied Authorization in Rails
+### Model
 
-Identity::Gateway raises a `Identity::Gateway::Unauthorized` error you can
-[rescue_from](http://guides.rubyonrails.org/action_controller_overview.html#rescue-from)
-in your `ApplicationController`. You can customize the `unauthorized_response`
-method in every controller.
+The model answers two class methods:
+
+* `find_by(id:)`: the resource remembered for a token, or nil;
+* `from_oauth_provider(me_hash)`: the resource created or updated from Identity's `/me` body, responding to `id`.
+
+### Errors
+
+* `Identity::Gateway::Unauthorized`: no bearer token, or Identity refused it (any client error but 429). Answer 401.
+* `Identity::Gateway::Unavailable`: Identity timed out, was unreachable, rate limited the call, answered a server error or a body that is no user. Answer 503, so that the client does not take an outage for a sign out.
 
 ```ruby
-class ApplicationController < ActionController::Base
-  protect_from_forgery with: :null_session
-
+class ApplicationController < ActionController::API
   rescue_from Identity::Gateway::Unauthorized, with: :unauthorized_response
-
-  private
-
-  def unauthorized_response
-    render json: { message: 'You need to sign in before continuing.' }, status: :unauthorized
-  end
+  rescue_from Identity::Gateway::Unavailable, with: :unavailable_response
 end
 ```
 
-Alternatively, you can globally handle Identity::Gateway::Unauthorized's by having rails handle them as a 401 error and serving a 401 error page. Add the following to application.rb:
+### Fresh account
 
-```ruby
-config.action_dispatch.rescue_responses['Identity::Gateway::Unauthorized'] = :unauthorized
-```
+`refresh!` asks `/me` whatever the cache holds, and remembers the token again: for an endpoint that renders the account as Identity describes it now.
+
+### Sign out
+
+`revoke_access!` revokes the token on Identity, then forgets it. It raises `Unavailable` when Identity does not answer or fails: the token is then still valid, and still remembered.
+
+### Before authorization
+
+`Identity::Gateway::Provider.token_from(header)` reads the bearer token of an `Authorization` header by the provider's own rule, and `Identity::Gateway::Provider.cached_resource_id(token)` is the id remembered for it, nil if unknown: together they let a rate limiter tell whose the token is without asking Identity.
+
+### Specs
+
+`Identity::Gateway::Provider.remember(token, resource_id, nil)` remembers a token as if `/me` had just confirmed it, for `token_ttl`: an app's specs sign a user in without stubbing `/me`.
 
 ## Configuration
 
@@ -124,6 +134,38 @@ This option allows you to define the path on Identity that return the informatio
 
 ```ruby
 config.identity_path = '/me'
+```
+
+### cache
+
+The store holding the confirmed tokens, an `ActiveSupport::Cache` store shared by every process. A cache failure is logged and taken for a miss.
+
+```ruby
+config.cache = Rails.cache
+```
+
+### token_ttl
+
+Seconds a confirmed token is trusted, 120 by default, capped by the token's own lifetime. A value that is no non-negative integer raises at boot.
+
+```ruby
+config.token_ttl = ENV.fetch('IDENTITY_TOKEN_TTL_SECONDS', nil)
+```
+
+### timeout
+
+Seconds to wait on Identity, 5 by default.
+
+```ruby
+config.timeout = 5
+```
+
+### logger
+
+Logger told of cache failures.
+
+```ruby
+config.logger = Rails.logger
 ```
 
 ### version_header
