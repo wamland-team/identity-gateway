@@ -1,25 +1,24 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
-class User; end
+User = Class.new
+
+MockRequest = Struct.new(:headers) do
+  def initialize(headers = {})
+    super
+  end
+end
+
+MockResponse = Struct.new(:code, :parsed_response) do
+  def initialize(code = nil, parsed_response = {})
+    super
+  end
+end
 
 module Identity
   module Gateway
     RSpec.describe Provider do
-      class MockRequest
-        attr_accessor :headers
-        def initialize(headers = {})
-          @headers = headers
-        end
-      end
-
-      class MockResponse
-        attr_accessor :code, :parsed_response
-        def initialize(code = nil, parsed_response = {})
-          @code = code
-          @parsed_response = parsed_response
-        end
-      end
-
       let(:user)    { User.new }
       let(:request) { MockRequest.new('Authorization' => 'Bearer 123456789') }
 

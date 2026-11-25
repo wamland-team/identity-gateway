@@ -1,8 +1,11 @@
+# frozen_string_literal: true
+
 require 'httparty'
 
 module Identity
   module Gateway
     class Unauthorized < StandardError; end
+
     class Provider
       include HTTParty
 
@@ -28,7 +31,8 @@ module Identity
       def authorize!
         token = request_token
         @subject = @model.find_by(token: token)
-        return unless (@subject && @subject.token_has_expired?) || @subject.nil?
+        return unless @subject&.token_has_expired? || @subject.nil?
+
         authorize_from_provider
       end
 
@@ -48,7 +52,7 @@ module Identity
       def revoke_access!
         self.class.post(
           "#{@settings.provider_url}/oauth/revoke",
-          body: { token: request_token }.to_json,
+          body:    { token: request_token }.to_json,
           headers: api_headers
         )
       end
@@ -66,6 +70,7 @@ module Identity
         )
 
         raise Unauthorized if invalid_response?(@response)
+
         @subject = @model.from_oauth_provider(@response.parsed_response)
       end
 
